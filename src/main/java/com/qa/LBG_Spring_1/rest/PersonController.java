@@ -1,6 +1,8 @@
 package com.qa.LBG_Spring_1.rest;
 
 import com.qa.LBG_Spring_1.entities.Person;
+import com.qa.LBG_Spring_1.services.PersonService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -9,22 +11,31 @@ import java.util.List;
 @RestController
 public class PersonController {
 
+    private PersonService service;
+
+    public PersonController(PersonService service) {
+        this.service = service;
+    }
+
     private List<Person> people = new ArrayList<>();
 
-    @GetMapping("/getAll")
+    @GetMapping("/all")
     public List<Person> getAll() {
-        return this.people;
+        return this.service.getAll();
     }
+
+    @GetMapping("get/{id}")
+    public Person get(@PathVariable int id) {return this.service.get(id);}
 
     @PostMapping("/create")
     public Person createPerson(@RequestBody Person person) {
         this.people.add(person);
-        return this.people.get(this.people.size() -1);
+        return this.service.createPerson(person);
     }
 
     @DeleteMapping("/remove/{id}")
     public Person removePerson(@PathVariable int id) {
-        return this.people.remove(id);
+        return this.service.removePerson(id);
     }
 
     @PatchMapping("/update/{id}")
@@ -32,12 +43,7 @@ public class PersonController {
                                @RequestParam (required = false) String name,
                                @RequestParam (required = false) Integer age,
                                @RequestParam (required = false) String job) {
-        Person toUpdate = this.people.get(id);
 
-        if (name != null) toUpdate.setName(name);
-        if (age != null) toUpdate.setAge(age);
-        if (job != null) toUpdate.setJob(job);
-
-        return toUpdate;
+        return this.service.updatePerson(id, name, age, job);
     }
 }
